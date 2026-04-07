@@ -1,0 +1,87 @@
+{
+  "version": "1.0",
+  "feature": "Demo: Spec-driven build of a lightweight team skills directory",
+  "issue": {
+    "number": 3,
+    "title": "Demo: Spec-driven build of a lightweight team skills directory",
+    "url": "https://github.com/rajshah4/demo-spec-driven/issues/3"
+  },
+  "problem_statement": "The payroll demo app currently has no way to track or display the skills of individual employees. Adding a Team Skills Directory page will demonstrate the end-to-end OpenHands + OpenSpec spec-driven workflow (spec → plan → tasks → implementation PR) while delivering a small, readable feature that lets users search employees by name, filter by job title, view each employee's skills, and submit skill updates through a simple form.",
+  "user_stories": [
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to view a dedicated Team Skills Directory page listing all employees with their skills",
+      "so_that": "I can quickly understand the capabilities available across the team"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to search employees by name on the skills directory page",
+      "so_that": "I can quickly locate a specific person's skill profile"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to filter employees by job title on the skills directory page",
+      "so_that": "I can see the skills held by people in a particular role"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to submit a form to add or update skills for an employee",
+      "so_that": "I can keep skill records accurate as employees grow their capabilities"
+    },
+    {
+      "as_a": "demo observer",
+      "i_want": "to see the full spec → plan → tasks → PR workflow on a real, self-contained feature",
+      "so_that": "I can evaluate whether the OpenSpec process works end-to-end"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "A new /skills route serving a Team Skills Directory page",
+      "The page lists all employees with their name, job title, and current skills",
+      "Skills are stored per employee in a new SQLite table linked to the existing employees table",
+      "A search input on the page filters the employee list by name (server-side or client-side)",
+      "A dropdown or select input on the page filters employees by job title",
+      "A form to add or replace the skill list for a selected employee (comma-separated or line-by-line input is acceptable)",
+      "The directory page is navigable from the main payroll dashboard (a link in the nav or header)",
+      "Input is validated: employee must exist, skills field must not be empty on submit"
+    ],
+    "should_have": [
+      "Flash/redirect messages on successful skill update (consistent with existing redirect-with-message pattern)",
+      "Empty-state message when no employees match the active search/filter",
+      "Skills displayed as readable tags or a comma-separated list rather than raw JSON",
+      "The feature branch, spec, plan, tasks, and PR artifacts are all linked in issue comments to demonstrate workflow transparency"
+    ],
+    "nice_to_have": [
+      "Client-side live filtering without a full page reload",
+      "Ability to delete individual skills rather than replacing the entire skill list",
+      "Skill count summary (e.g., total distinct skills across the team)"
+    ]
+  },
+  "acceptance_criteria": [
+    "GET /skills returns a 200 HTML response listing all employees with their name, title, and skills",
+    "A navigation link to /skills is visible on the main dashboard page",
+    "Searching by a partial employee name on the skills page shows only matching employees",
+    "Filtering by a job title on the skills page shows only employees with that title",
+    "POST /employees/:id/skills with a valid skill list updates the employee's skills and redirects with a success message",
+    "POST /employees/:id/skills with a missing or empty skill list returns an error message without updating the database",
+    "POST /employees/:id/skills for a non-existent employee ID returns an error message",
+    "Skills are persisted in SQLite and visible on page reload",
+    "The spec.json artifact exists and passes OpenSpec schema validation",
+    "Plan, tasks, and implementation PR artifacts are all generated and linked in the issue comments"
+  ],
+  "out_of_scope": [
+    "Authentication or role-based access control for the skills page",
+    "Skill categories, proficiency levels, or endorsements",
+    "Bulk import or export of skills (e.g., CSV upload)",
+    "Real-time collaboration or concurrent edit handling",
+    "Full-text search across skill values",
+    "Integration with external skill or HR systems",
+    "Mobile-optimized or accessible design beyond basic HTML"
+  ],
+  "open_questions": [
+    "Should skills be stored as a free-text field (comma-separated string) or as individual rows in a junction table? A single text field is simpler for a demo; a junction table is more extensible.",
+    "Should the search and title filter be applied server-side (query params) or client-side (JavaScript)? Client-side is simpler but server-side is more consistent with the existing app pattern.",
+    "Should the skills form replace all existing skills for an employee, or append new ones? Replacing is simpler for a demo scope.",
+    "Is there a preferred visual style or component pattern (e.g., matching the existing payroll dashboard CSS) that should be followed for the new page?"
+  ]
+}

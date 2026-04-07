@@ -1,0 +1,48 @@
+name: OpenHands OpenSpec Development
+
+on:
+  # Step 1: New issues trigger SPECIFY
+  issues:
+    types: [opened, labeled]
+  
+  # Step 5: PR reviews trigger PR-RESPONDER
+  pull_request_review:
+    types: [submitted]
+  
+  # Optional: Issue comments for clarification
+  issue_comment:
+    types: [created]
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    # Skip if triggered by bot to prevent loops
+    if: github.actor != 'github-actions[bot]'
+    
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for branch operations
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install httpx
+      
+      - name: Run OpenHands Agent
+        env:
+          OPENHANDS_API_KEY: ${{ secrets.OPENHANDS_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_LABEL: ${{ github.event.label.name }}
+          EVENT_PAYLOAD: ${{ toJson(github.event) }}
+        run: python .github/openhands/runner.py

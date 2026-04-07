@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spec-Driven Development with OpenHands</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #f3e7d3;
+            --bg-card: #eadcc4;
+            --bg-elevated: #e2d2b7;
+            --accent-blue: #000000;
+            --accent-cyan: #000000;
+            --accent-purple: #000000;
+            --accent-green: #000000;
+            --accent-orange: #000000;
+            --accent-pink: #000000;
+            --text-primary: #000000;
+            --text-secondary: #111111;
+            --text-muted: #333333;
+            --border: #bba98c;
+            --glow-blue: rgba(0, 0, 0, 0.06);
+            --glow-purple: rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow-1 {
+            top: -200px;
+            right: -100px;
+            background: var(--glow-blue);
+        }
+
+        .bg-glow-2 {
+            bottom: -200px;
+            left: -100px;
+            background: var(--glow-purple);
+        }
+
+        /* Slide Container */
+        .slides {
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        .slide-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 2px solid var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover, .nav-dot.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px var(--accent-blue);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 50%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--accent-cyan);
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 40px;
+        }
+
+        /* Code Blocks */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-elevated);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--accent-cyan);
+        }
+
+        pre {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 40px var(--glow-blue);
+            transform: translateY(-4px);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        /* Step Cards */
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        /* Label Badges */
+        .label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .label-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .label-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .label-yellow {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s ease;
+        }
+
+        .flow-box:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+        }
+
+        .flow-box-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .flow-box-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+        }
+
+        /* Icon Circles */
+        .icon-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .icon-blue {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+            border: 2px solid var(--accent-blue);
+        }
+
+        .icon-green {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+            border: 2px solid var(--accent-green);
+        }
+
+        .icon-purple {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+            border: 2px solid var(--accent-purple);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-elevated);
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-card);
+        }
+
+        /* Checkpoints */
+        .checkpoint {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .checkpoint-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-green);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .checkpoint-content h4 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .checkpoint-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+
+        /* Special Elements */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero-badge span {
+            color: var(--accent-cyan);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 32px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px;
+            }
+            .grid-5 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .nav {
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 24px;
+            }
+            .grid-2, .grid-3, .grid-5 {
+                grid-template-columns: 1fr;
+            }
+            .flow-container {
+                flex-direction: column;
+            }
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            .nav {
+                display: none;
+            }
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .key {
+            background: var(--bg-elevated);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <nav class="nav" id="navDots"></nav>
+
+    <div class="keyboard-hint">
+        <span>Navigate:</span>
+        <span class="key">↑</span>
+        <span class="key">↓</span>
+        <span>or scroll</span>
+    </div>
+
+    <div class="slides" id="slides">
+        <!-- Slide 1: Title -->
+        <section class="slide" id="slide-1">
+            <div class="slide-content">
+                <div class="hero-badge animate-in">
+                    🚀 <span>Powered by OpenHands Cloud</span>
+                </div>
+                <h1 class="animate-in delay-1">Spec-Driven<br>Development</h1>
+                <p class="subtitle animate-in delay-2">Transform ideas into production code with AI agents that follow your specifications — not guess your intentions.</p>
+                <div class="flow-container animate-in delay-3">
+                    <div class="flow-box">
+                        <div class="flow-box-title">💡 Idea</div>
+                        <div class="flow-box-sub">GitHub Issue</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">
+                        <div class="flow-box-title">📋 Spec</div>
+                        <div class="flow-box-sub">What & Why</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">
+                        <div class="flow-box-title">🔧 Plan</div>
+                        <div class="flow-box-sub">How & Stack</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">
+                        <div class="flow-box-title">📝 Tasks</div>
+                        <div class="flow-box-sub">Step by Step</div>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">
+                        <div class="flow-box-title">✨ Code</div>
+                        <div class="flow-box-sub">Draft PR</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: The Problem -->
+        <section class="slide" id="slide-2">
+            <div class="slide-content">
+                <h2>Why Not "Vibe Coding"?</h2>
+                <p class="subtitle">When you ask AI to "just build it," you get unpredictable results</p>
+                <div class="grid-2">
+                    <div class="card" style="border-color: rgba(249, 115, 22, 0.3);">
+                        <h3 style="color: var(--accent-orange);">😵 Vibe Coding</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; margin-top: 16px; line-height: 2;">
+                            <li>"Add photo sharing to my app"</li>
+                            <li>AI guesses flow, tech stack, integration</li>
+                            <li>Unpredictable, inconsistent results</li>
+                            <li>"Nobody likes to vibe debug"</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="border-color: rgba(16, 185, 129, 0.3);">
+                        <h3 style="color: var(--accent-green);">✅ Spec-Driven</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; margin-top: 16px; line-height: 2;">
+                            <li>Structured spec → Plan → Tasks → Code</li>
+                            <li>You define <em>what</em> and <em>why</em>, AI handles <em>how</em></li>
+                            <li>Production-ready, consistent outcomes</li>
+                            <li>Systematic, reviewable process</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: What is OpenSpec? -->
+        <section class="slide" id="slide-3">
+            <div class="slide-content">
+                <h2>What is OpenSpec?</h2>
+                <p class="subtitle">A structured, machine-readable format that makes specs actionable — not just readable</p>
+                <div class="grid-2" style="margin-top: 40px;">
+                    <div>
+                        <div class="card" style="margin-bottom: 24px;">
+                            <h3>📐 Schema-Enforced</h3>
+                            <p style="font-size: 1rem;">Every <code>spec.json</code> is validated against a JSON Schema. Required fields — <code>user_stories</code>, <code>acceptance_criteria</code>, <code>requirements</code> — must be present before the workflow proceeds.</p>
+                        </div>
+                        <div class="card">
+                            <h3>🤖 AI-Ready</h3>
+                            <p style="font-size: 1rem;">Structured JSON means agents can parse intent reliably. No ambiguity — must-have requirements are separate from nice-to-haves, out-of-scope is explicit.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 16px;">Why JSON, not Markdown?</h3>
+                        <pre style="font-size: 0.8rem; line-height: 1.8;">
+<span style="color: var(--text-muted);">// Validated automatically in CI</span>
+{
+  "version": "1.0",
+  "user_stories": [...],        <span style="color: var(--text-muted);">✓ required</span>
+  "requirements": {
+    "must_have": [...],         <span style="color: var(--text-muted);">✓ required</span>
+    "should_have": [...],
+    "nice_to_have": [...]
+  },
+  "acceptance_criteria": [...], <span style="color: var(--text-muted);">✓ required</span>
+  "out_of_scope": [...]         <span style="color: var(--text-muted);">✓ explicit</span>
+}</pre>
+                        <p style="font-size: 0.95rem; margin-top: 16px; color: var(--text-muted);">Schema lives at <code>.specify/schema/spec.schema.json</code> — versioned in your repo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: The 5 Steps -->
+        <section class="slide" id="slide-4-workflow">
+            <div class="slide-content">
+                <h2>The 5-Step Workflow</h2>
+                <p>Each step produces a reviewable artifact with human approval gates</p>
+                <div class="grid-5">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-title">SPECIFY</div>
+                        <div class="step-desc">Define what & why</div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-title">PLAN</div>
+                        <div class="step-desc">Technical approach</div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-title">TASKS</div>
+                        <div class="step-desc">Break it down</div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-title">IMPLEMENT</div>
+                        <div class="step-desc">Write the code</div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">5</div>
+                        <div class="step-title">REFINE</div>
+                        <div class="step-desc">Review & merge</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Step 1 - Specify -->
+        <section class="slide" id="slide-4">
+            <div class="slide-content">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div class="icon-circle icon-blue">📋</div>
+                    <div>
+                        <h2 style="margin-bottom: 0;">Step 1: SPECIFY</h2>
+                        <p style="color: var(--text-muted); font-size: 1rem;">Triggered when you create a GitHub Issue</p>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <h3>What Happens</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; line-height: 2.2;">
+                            <li>Agent reads your issue description</li>
+                            <li>Explores the codebase for context</li>
+                            <li>May ask clarifying questions</li>
+                            <li>Creates structured <code>spec.json</code></li>
+                        </ul>
+                        <div style="margin-top: 24px;">
+                            <span class="label label-blue">spec-ready</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← Added when done</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Output: spec.json</h3>
+                        <pre style="font-size: 0.8rem;">
+{
+  "version": "1.0",
+  "feature": "User Authentication",
+  "problem_statement": "Users need secure access...",
+  "user_stories": [...],
+  "requirements": {
+    "must_have": [
+      "Email/password login",
+      "Session management"
+    ]
+  },
+  "acceptance_criteria": [
+    "Login succeeds with valid credentials",
+    "Error returned on invalid credentials"
+  ]
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Step 2 - Plan -->
+        <section class="slide" id="slide-5">
+            <div class="slide-content">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div class="icon-circle icon-purple">🔧</div>
+                    <div>
+                        <h2 style="margin-bottom: 0;">Step 2: PLAN</h2>
+                        <p style="color: var(--text-muted); font-size: 1rem;">Triggered when you add <code>spec-approved</code> label</p>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <h3>What Happens</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; line-height: 2.2;">
+                            <li>Agent reads approved spec</li>
+                            <li>Analyzes existing architecture</li>
+                            <li>Defines tech stack & patterns</li>
+                            <li>Creates <code>plan.md</code> with details</li>
+                        </ul>
+                        <div style="margin-top: 24px;">
+                            <span class="label label-green">spec-approved</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← You add this</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="label label-blue">plan-ready</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← Agent adds when done</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Output: plan.md</h3>
+                        <pre style="font-size: 0.8rem;">
+# Implementation Plan: User Auth
+
+## Technology Stack
+- **Framework:** Next.js 14
+- **Auth:** NextAuth.js
+- **Database:** PostgreSQL
+
+## Architecture
+### Components
+1. AuthProvider - Session management
+2. LoginForm - User interface
+
+## File Changes
+### New Files
+- `lib/auth.ts` - Auth configuration
+- `components/LoginForm.tsx`</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Step 3 - Tasks -->
+        <section class="slide" id="slide-6">
+            <div class="slide-content">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div class="icon-circle icon-green">📝</div>
+                    <div>
+                        <h2 style="margin-bottom: 0;">Step 3: TASKS</h2>
+                        <p style="color: var(--text-muted); font-size: 1rem;">Triggered when you add <code>plan-approved</code> label</p>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <h3>What Happens</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; line-height: 2.2;">
+                            <li>Agent reads spec + plan</li>
+                            <li>Breaks down into small tasks</li>
+                            <li>Orders by dependencies</li>
+                            <li>Marks parallel tasks with [P]</li>
+                        </ul>
+                        <div style="margin-top: 24px;">
+                            <span class="label label-green">plan-approved</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← You add this</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="label label-blue">tasks-ready</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← Agent adds when done</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Output: tasks.md</h3>
+                        <pre style="font-size: 0.8rem;">
+# Task Breakdown: User Auth
+
+## Phase 1: Foundation
+### Task 1.1: Create auth config
+- **File:** `lib/auth.ts`
+- **Depends on:** None
+
+### Task 1.2: Create user model [P]
+- **File:** `prisma/schema.prisma`
+- **Parallel:** Yes (with 1.3)
+
+## Phase 2: Core Implementation
+### Task 2.1: Build LoginForm
+- **File:** `components/LoginForm.tsx`
+- **Depends on:** Task 1.1</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Step 4 - Implement -->
+        <section class="slide" id="slide-7">
+            <div class="slide-content">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div class="icon-circle icon-blue">⚡</div>
+                    <div>
+                        <h2 style="margin-bottom: 0;">Step 4: IMPLEMENT</h2>
+                        <p style="color: var(--text-muted); font-size: 1rem;">Triggered when you add <code>ready-to-implement</code> label</p>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <h3>What Happens</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; line-height: 2.2;">
+                            <li>Agent creates feature branch</li>
+                            <li>Executes tasks in order</li>
+                            <li>Makes atomic commits per task</li>
+                            <li>Runs tests before PR</li>
+                            <li>Opens <strong>Draft PR</strong></li>
+                        </ul>
+                        <div style="margin-top: 24px;">
+                            <span class="label label-green">ready-to-implement</span>
+                            <span style="color: var(--text-muted); margin-left: 8px;">← You add this</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Output: Draft Pull Request</h3>
+                        <div class="card" style="padding: 20px;">
+                            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 12px;">
+                                <span style="color: var(--accent-green);">●</span> feat: User Authentication (#42)
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+                                Closes #42
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.95rem;">
+                                <strong>Changes:</strong><br>
+                                ✅ Task 1.1: Create auth config<br>
+                                ✅ Task 1.2: Create user model<br>
+                                ✅ Task 2.1: Build LoginForm<br>
+                                ✅ Task 3.1: Add unit tests
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: Step 5 - Refine -->
+        <section class="slide" id="slide-8">
+            <div class="slide-content">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                    <div class="icon-circle icon-purple">💬</div>
+                    <div>
+                        <h2 style="margin-bottom: 0;">Step 5: REFINE</h2>
+                        <p style="color: var(--text-muted); font-size: 1rem;">Triggered when you submit a PR review</p>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div>
+                        <h3>What Happens</h3>
+                        <ul style="color: var(--text-secondary); padding-left: 20px; line-height: 2.2;">
+                            <li>Agent reads review comments</li>
+                            <li>Evaluates each piece of feedback</li>
+                            <li>Makes necessary changes</li>
+                            <li>Responds to comment threads</li>
+                            <li>Marks PR ready when addressed</li>
+                        </ul>
+                        <div style="margin-top: 24px; padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 3px solid var(--accent-cyan);">
+                            <strong style="color: var(--accent-cyan);">💡 Smart Evaluation</strong>
+                            <p style="font-size: 0.9rem; margin-top: 8px;">Agent prioritizes bug fixes and security issues, but can respectfully decline over-engineering suggestions.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Review Response</h3>
+                        <div class="card" style="padding: 20px;">
+                            <div style="background: var(--bg-elevated); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">👤 Reviewer:</div>
+                                <div style="color: var(--text-secondary); font-size: 0.95rem;">"Should add input validation here"</div>
+                            </div>
+                            <div style="background: var(--bg-elevated); padding: 12px; border-radius: 8px;">
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">🤖 Agent:</div>
+                                <div style="color: var(--text-secondary); font-size: 0.95rem;">"Good catch! Added validation in commit <code>abc1234</code>. Also added error messages for invalid inputs."</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Human Checkpoints -->
+        <section class="slide" id="slide-9">
+            <div class="slide-content">
+                <h2>Human Checkpoints</h2>
+                <p>You stay in control with approval gates at every step</p>
+                <div style="margin-top: 40px; max-width: 800px;">
+                    <div class="checkpoint">
+                        <div class="checkpoint-icon">✓</div>
+                        <div class="checkpoint-content">
+                            <h4>After SPECIFY → Add <span class="label label-green" style="font-size: 0.8rem;">spec-approved</span></h4>
+                            <p>Is the spec complete? Does it capture all requirements?</p>
+                        </div>
+                    </div>
+                    <div class="checkpoint">
+                        <div class="checkpoint-icon">✓</div>
+                        <div class="checkpoint-content">
+                            <h4>After PLAN → Add <span class="label label-green" style="font-size: 0.8rem;">plan-approved</span></h4>
+                            <p>Is the technical approach correct? Right tech stack?</p>
+                        </div>
+                    </div>
+                    <div class="checkpoint">
+                        <div class="checkpoint-icon">✓</div>
+                        <div class="checkpoint-content">
+                            <h4>After TASKS → Add <span class="label label-green" style="font-size: 0.8rem;">ready-to-implement</span></h4>
+                            <p>Are tasks properly scoped? Dependencies correct?</p>
+                        </div>
+                    </div>
+                    <div class="checkpoint">
+                        <div class="checkpoint-icon">✓</div>
+                        <div class="checkpoint-content">
+                            <h4>After IMPLEMENT → Review PR</h4>
+                            <p>Does the code meet requirements? Tests passing?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10: Setup Guide -->
+        <section class="slide" id="slide-10">
+            <div class="slide-content">
+                <h2>Quick Setup Guide</h2>
+                <p>Get started in 3 simple steps</p>
+                <div class="grid-3" style="margin-top: 40px;">
+                    <div class="card">
+                        <div class="step-number" style="font-size: 2rem;">1</div>
+                        <h3>Add API Secret</h3>
+                        <p style="font-size: 1rem;">Go to <strong>Settings → Secrets → Actions</strong></p>
+                        <div style="margin-top: 16px;">
+                            <code>OPENHANDS_API_KEY</code>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="step-number" style="font-size: 2rem;">2</div>
+                        <h3>Create Labels</h3>
+                        <div style="margin-top: 16px;">
+                            <span class="label label-green">spec-approved</span><br>
+                            <span class="label label-green">plan-approved</span><br>
+                            <span class="label label-green">ready-to-implement</span><br>
+                            <span class="label label-blue">spec-ready</span><br>
+                            <span class="label label-blue">plan-ready</span><br>
+                            <span class="label label-blue">tasks-ready</span><br>
+                            <span class="label label-yellow">needs-clarification</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="step-number" style="font-size: 2rem;">3</div>
+                        <h3>Create an Issue</h3>
+                        <p style="font-size: 1rem;">Describe your feature idea and watch the magic happen!</p>
+                        <div style="margin-top: 16px; padding: 12px; background: var(--bg-elevated); border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                            "Add user authentication with email/password login"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 11: File Structure -->
+        <section class="slide" id="slide-11">
+            <div class="slide-content">
+                <h2>Project Structure</h2>
+                <p>Everything lives in your repository</p>
+                <div class="grid-2" style="margin-top: 40px;">
+                    <div>
+                        <pre style="line-height: 1.8;">
+<span style="color: var(--accent-cyan);">.github/</span>
+├── <span style="color: var(--accent-blue);">workflows/</span>
+│   └── openhands-agent.yml    <span style="color: var(--text-muted);"># Workflow triggers</span>
+└── <span style="color: var(--accent-blue);">openhands/</span>
+    └── runner.py               <span style="color: var(--text-muted);"># Event routing</span>
+
+<span style="color: var(--accent-cyan);">.agents/</span>
+└── <span style="color: var(--accent-purple);">skills/</span>
+    ├── specify/SKILL.md        <span style="color: var(--text-muted);"># Step 1</span>
+    ├── plan/SKILL.md           <span style="color: var(--text-muted);"># Step 2</span>
+    ├── tasks/SKILL.md          <span style="color: var(--text-muted);"># Step 3</span>
+    ├── implement/SKILL.md      <span style="color: var(--text-muted);"># Step 4</span>
+    └── pr-responder/SKILL.md   <span style="color: var(--text-muted);"># Step 5</span>
+
+<span style="color: var(--accent-green);">.specify/specs/</span>                 <span style="color: var(--text-muted);"># Generated specs</span>
+└── 042-user-auth/
+    ├── spec.json
+    ├── plan.md
+    └── tasks.md</pre>
+                    </div>
+                    <div>
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h3>🎯 Skills are Customizable</h3>
+                            <p style="font-size: 1rem;">Each skill is a markdown file with instructions for the AI. Edit them to match your team's workflow!</p>
+                        </div>
+                        <div class="card">
+                            <h3>📜 Project Constitution</h3>
+                            <p style="font-size: 1rem;">Define non-negotiable principles in <code>.specify/memory/constitution.md</code></p>
+                            <pre style="font-size: 0.8rem; margin-top: 12px;">
+# Project Constitution
+- All code must have tests
+- Follow existing patterns
+- No console.log in prod</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 12: Summary -->
+        <section class="slide" id="slide-12">
+            <div class="slide-content" style="text-align: center;">
+                <h1 style="margin-bottom: 32px;">Ready to Build?</h1>
+                <p style="font-size: 1.3rem; max-width: 600px; margin: 0 auto;">Stop vibing. Start specifying.<br>Let AI agents do the heavy lifting while you stay in control.</p>
+                
+                <div style="margin-top: 48px;">
+                    <table style="max-width: 900px; margin: 0 auto;">
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Trigger</th>
+                                <th>Skill</th>
+                                <th>Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1. Specify</td>
+                                <td>Issue opened</td>
+                                <td><code>specify</code></td>
+                                <td>spec.json</td>
+                            </tr>
+                            <tr>
+                                <td>2. Plan</td>
+                                <td><span class="label label-green" style="font-size: 0.75rem;">spec-approved</span></td>
+                                <td><code>plan</code></td>
+                                <td>plan.md</td>
+                            </tr>
+                            <tr>
+                                <td>3. Tasks</td>
+                                <td><span class="label label-green" style="font-size: 0.75rem;">plan-approved</span></td>
+                                <td><code>tasks</code></td>
+                                <td>tasks.md</td>
+                            </tr>
+                            <tr>
+                                <td>4. Implement</td>
+                                <td><span class="label label-green" style="font-size: 0.75rem;">ready-to-implement</span></td>
+                                <td><code>implement</code></td>
+                                <td>Draft PR</td>
+                            </tr>
+                            <tr>
+                                <td>5. Refine</td>
+                                <td>PR Review</td>
+                                <td><code>pr-responder</code></td>
+                                <td>Updated PR</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <a href="https://github.com/rajshah4/demo-spec-driven" class="cta-button" target="_blank">
+                    Explore the Demo Repo →
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Navigation
+        const slides = document.querySelectorAll('.slide');
+        const navContainer = document.getElementById('navDots');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Create nav dots
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot' + (index === 0 ? ' active' : '');
+            dot.onclick = () => slide.scrollIntoView({ behavior: 'smooth' });
+            navContainer.appendChild(dot);
+        });
+        
+        const navDots = document.querySelectorAll('.nav-dot');
+        
+        // Update active state on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(slides).indexOf(entry.target);
+                    navDots.forEach((dot, i) => {
+                        dot.classList.toggle('active', i === index);
+                    });
+                    // Update progress bar
+                    const progress = ((index + 1) / slides.length) * 100;
+                    progressBar.style.width = progress + '%';
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        slides.forEach(slide => observer.observe(slide));
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const currentIndex = Array.from(navDots).findIndex(dot => dot.classList.contains('active'));
+            if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+                e.preventDefault();
+                if (currentIndex < slides.length - 1) {
+                    slides[currentIndex + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (currentIndex > 0) {
+                    slides[currentIndex - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

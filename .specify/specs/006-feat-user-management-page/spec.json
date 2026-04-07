@@ -1,0 +1,93 @@
+{
+  "version": "1.0",
+  "feature": "User Management Page",
+  "issue": {
+    "number": 6,
+    "title": "Feat: User management page",
+    "url": "https://github.com/jpelletier1/demo-spec-driven/issues/6"
+  },
+  "problem_statement": "The application lacks a centralized interface for managing users. Administrators and owners need to invite users, assign roles, manage enabled status, and remove users without relying on direct database access or scripts.",
+  "user_stories": [
+    {
+      "as_a": "Admin",
+      "i_want": "to add new users by email",
+      "so_that": "I can onboard new team members"
+    },
+    {
+      "as_a": "Owner",
+      "i_want": "to change a user's role",
+      "so_that": "I can grant or revoke elevated permissions as organizational needs change"
+    },
+    {
+      "as_a": "Admin",
+      "i_want": "to disable a user's login access",
+      "so_that": "I can temporarily restrict access without deleting the account"
+    },
+    {
+      "as_a": "Admin",
+      "i_want": "to re-enable a disabled user",
+      "so_that": "I can restore access when appropriate"
+    },
+    {
+      "as_a": "Owner",
+      "i_want": "to permanently delete a user",
+      "so_that": "I can remove users who are no longer part of the organization"
+    },
+    {
+      "as_a": "Member",
+      "i_want": "to be blocked from accessing user management",
+      "so_that": "least privilege is maintained"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "Restrict user management page access to Admin and Owner roles",
+      "Display users with email, role, and enabled/disabled status",
+      "Allow adding a new user by email with format validation",
+      "Default new users to Member role and block duplicate emails",
+      "Allow role changes with Owner-only control of Owner role",
+      "Allow enabling/disabling users and clearly display disabled status",
+      "Allow deleting users with confirmation and prevent self-deletion"
+    ],
+    "should_have": [
+      "Support search by email and filtering by role/status",
+      "Support pagination for large user lists",
+      "Prevent self role changes and self-disable actions",
+      "Show loading states for asynchronous operations",
+      "Display clear error messages for failed operations"
+    ],
+    "nice_to_have": [
+      "Support bulk enable/disable/delete actions",
+      "Capture audit logs for admin actions",
+      "Send invitation or welcome notifications",
+      "Allow exporting user list to CSV"
+    ]
+  },
+  "acceptance_criteria": [
+    "Members are denied access to user management",
+    "Admins can list users, add users, assign Member/Admin roles, and enable/disable users",
+    "Owners can perform all user management actions including Owner role assignment",
+    "Invalid email input surfaces a validation error",
+    "Duplicate email input surfaces a clear error",
+    "Newly added users default to Member role",
+    "Disabled users are clearly distinguished in the list",
+    "Delete operations require confirmation",
+    "Users cannot delete their own account",
+    "Role changes take effect immediately for authorization checks"
+  ],
+  "out_of_scope": [
+    "Self-service signup or registration flow",
+    "Password reset and credential management",
+    "End-user profile editing",
+    "Team or group management",
+    "Fine-grained permissions beyond Member/Admin/Owner",
+    "SSO or OAuth provider integration",
+    "Session revocation and active session dashboards"
+  ],
+  "open_questions": [
+    "Should adding a user trigger an invitation email flow or temporary password flow?",
+    "Should the system enforce a minimum Owner count (e.g., cannot demote last Owner)?",
+    "Should user deletion be soft-delete or hard-delete?",
+    "Should disabling a user immediately invalidate active sessions?"
+  ]
+}

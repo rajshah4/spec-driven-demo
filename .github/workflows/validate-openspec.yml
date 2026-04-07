@@ -1,0 +1,26 @@
+name: Validate OpenSpec Artifacts
+
+on:
+  pull_request:
+    paths:
+      - '.specify/specs/**/spec.json'
+      - '.specify/schema/spec.schema.json'
+      - 'scripts/validate-openspec.js'
+  push:
+    branches:
+      - main
+    paths:
+      - '.specify/specs/**/spec.json'
+      - '.specify/schema/spec.schema.json'
+      - 'scripts/validate-openspec.js'
+
+jobs:
+  validate-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate structured spec files
+        run: node scripts/validate-openspec.js
