@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "feature": "Add employee search feature and salary info",
+  "issue": {
+    "number": 3,
+    "title": "Add employee search feature and salary info",
+    "url": "https://github.com/rajshah4/spec-driven-demo/issues/3"
+  },
+  "problem_statement": "The payroll dashboard currently displays all employees in a single list without any filtering capabilities. As the employee roster grows, users need the ability to quickly find specific employees by name or title, and filter by salary ranges to identify compensation patterns. This feature will demonstrate the full spec-driven workflow while maintaining the existing CRUD functionality.",
+  "user_stories": [
+    {
+      "as_a": "payroll administrator",
+      "i_want": "to search employees by name or title",
+      "so_that": "I can quickly locate specific employees without scrolling through the entire roster"
+    },
+    {
+      "as_a": "payroll administrator",
+      "i_want": "to filter employees by minimum and maximum salary ranges",
+      "so_that": "I can identify employees within specific compensation bands for analysis and reporting"
+    },
+    {
+      "as_a": "payroll administrator",
+      "i_want": "to see which filters are currently active",
+      "so_that": "I understand what subset of employees I'm viewing and can easily adjust the criteria"
+    },
+    {
+      "as_a": "payroll administrator",
+      "i_want": "to clear all active filters with a single action",
+      "so_that": "I can quickly return to viewing the full employee list"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "Text search input that filters employees by name (case-insensitive partial match)",
+      "Text search input that filters employees by title (case-insensitive partial match)",
+      "Minimum salary filter input (numeric, filters employees with salary >= min value)",
+      "Maximum salary filter input (numeric, filters employees with salary <= max value)",
+      "Visual indicator showing currently active filters",
+      "Clear/reset button that removes all filters and returns to full employee list",
+      "Filters apply to both the employee directory table and the edit employee records section",
+      "All existing CRUD operations (create, update, delete) must continue to work unchanged",
+      "Filter state persists during page interactions (e.g., after creating/updating/deleting an employee)",
+      "Empty state message when no employees match the current filter criteria"
+    ],
+    "should_have": [
+      "Real-time filtering as the user types (debounced to avoid excessive rendering)",
+      "Display count of filtered results vs total employees",
+      "Filter inputs grouped together in a clear, accessible location on the dashboard",
+      "Responsive design that works on mobile and desktop viewports"
+    ],
+    "nice_to_have": [
+      "URL query parameters to preserve filter state across page reloads",
+      "Keyboard shortcuts to quickly focus on search inputs",
+      "Filter presets (e.g., 'High earners', 'Entry level') for common salary ranges",
+      "Highlight matching text in search results"
+    ]
+  },
+  "acceptance_criteria": [
+    "Verify that entering text in the name search field shows only employees whose names contain that text (case-insensitive)",
+    "Verify that entering text in the title search field shows only employees whose titles contain that text (case-insensitive)",
+    "Verify that entering a minimum salary value shows only employees with salaries at or above that amount",
+    "Verify that entering a maximum salary value shows only employees with salaries at or below that amount",
+    "Verify that multiple filters can be applied simultaneously and results reflect all active criteria (AND logic)",
+    "Verify that clicking the clear/reset button removes all filter values and displays the full employee list",
+    "Verify that active filters are visually indicated on the page (e.g., highlighted inputs, filter summary, or badge count)",
+    "Verify that when no employees match the filter criteria, an appropriate empty state message is displayed",
+    "Verify that creating a new employee while filters are active adds the employee to the database and the filtered view updates accordingly",
+    "Verify that updating an employee's information while filters are active reflects the changes and re-evaluates the filter criteria",
+    "Verify that deleting an employee while filters are active removes the employee and updates the filtered view",
+    "Verify that the summary statistics (headcount, total payroll, average salary, individual contributors) update based on the filtered employee set"
+  ],
+  "out_of_scope": [
+    "Advanced search operators (e.g., boolean queries, regular expressions)",
+    "Sorting functionality (e.g., sort by name, salary, or title)",
+    "Pagination or infinite scroll for large employee lists",
+    "Export filtered results to CSV or other formats",
+    "Saved filter presets or user-specific filter preferences",
+    "Multi-select filters (e.g., filtering by multiple specific titles)",
+    "Filter by manager, home address, or other employee fields not mentioned in requirements",
+    "Backend API changes (filtering should be implemented client-side for this demo)",
+    "Authentication or role-based access control for filter visibility"
+  ],
+  "open_questions": [
+    "Should the search be case-sensitive or case-insensitive? (Recommendation: case-insensitive for better UX)",
+    "Should the salary filters accept decimal values or only whole numbers? (Current DB schema uses INTEGER for salary)",
+    "Where should the filter controls be positioned on the page? (Options: above employee directory table, in sidebar, or in a dedicated filter panel)",
+    "Should filters update in real-time as the user types, or require a submit button? (Recommendation: real-time with debouncing for better UX)",
+    "Should the summary statistics (headcount, payroll totals) reflect the filtered subset or always show totals for all employees? (Recommendation: update to show filtered subset for consistency)",
+    "Should partial matches work for both name and title search? (Recommendation: yes, using substring matching)"
+  ]
+}

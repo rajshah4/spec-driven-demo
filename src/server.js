@@ -16,8 +16,15 @@ const port = Number.parseInt(process.env.PORT || '3000', 10);
 app.use(express.urlencoded({ extended: false }));
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-function redirectWithMessage(res, message) {
-  res.redirect(`/?message=${encodeURIComponent(message)}`);
+function redirectWithMessage(res, message, queryParams = {}) {
+  const params = new URLSearchParams({ message });
+  
+  if (queryParams.filterName) params.set('filterName', queryParams.filterName);
+  if (queryParams.filterTitle) params.set('filterTitle', queryParams.filterTitle);
+  if (queryParams.minSalary) params.set('minSalary', queryParams.minSalary);
+  if (queryParams.maxSalary) params.set('maxSalary', queryParams.maxSalary);
+  
+  res.redirect(`/?${params.toString()}`);
 }
 
 function parseId(value) {
@@ -69,8 +76,15 @@ app.get('/', (req, res) => {
   const message = typeof req.query.message === 'string' ? req.query.message : '';
   const employees = listEmployees();
   const summary = getSummary();
+  
+  const filters = {
+    filterName: typeof req.query.filterName === 'string' ? req.query.filterName : '',
+    filterTitle: typeof req.query.filterTitle === 'string' ? req.query.filterTitle : '',
+    minSalary: typeof req.query.minSalary === 'string' ? req.query.minSalary : '',
+    maxSalary: typeof req.query.maxSalary === 'string' ? req.query.maxSalary : ''
+  };
 
-  res.type('html').send(renderDashboard({ employees, summary, message }));
+  res.type('html').send(renderDashboard({ employees, summary, message, filters }));
 });
 
 app.get('/health', (req, res) => {
@@ -91,9 +105,9 @@ app.post('/employees', (req, res) => {
   try {
     const employee = parseEmployeeInput(req.body);
     createEmployee(employee);
-    redirectWithMessage(res, `${employee.name} added to payroll.`);
+    redirectWithMessage(res, `${employee.name} added to payroll.`, req.query);
   } catch (error) {
-    redirectWithMessage(res, error.message || 'Unable to add employee.');
+    redirectWithMessage(res, error.message || 'Unable to add employee.', req.query);
   }
 });
 
@@ -101,15 +115,15 @@ app.post('/employees/:id/update', (req, res) => {
   const employeeId = parseId(req.params.id);
 
   if (!employeeId || !employeeExists(employeeId)) {
-    return redirectWithMessage(res, 'Employee record could not be found.');
+    return redirectWithMessage(res, 'Employee record could not be found.', req.query);
   }
 
   try {
     const employee = parseEmployeeInput(req.body, employeeId);
     updateEmployee(employeeId, employee);
-    return redirectWithMessage(res, `${employee.name}'s profile was updated.`);
+    return redirectWithMessage(res, `${employee.name}'s profile was updated.`, req.query);
   } catch (error) {
-    return redirectWithMessage(res, error.message || 'Unable to update employee.');
+    return redirectWithMessage(res, error.message || 'Unable to update employee.', req.query);
   }
 });
 
@@ -117,11 +131,11 @@ app.post('/employees/:id/delete', (req, res) => {
   const employeeId = parseId(req.params.id);
 
   if (!employeeId || !employeeExists(employeeId)) {
-    return redirectWithMessage(res, 'Employee record could not be found.');
+    return redirectWithMessage(res, 'Employee record could not be found.', req.query);
   }
 
   const removedEmployee = deleteEmployee(employeeId);
-  return redirectWithMessage(res, `${removedEmployee.name} was removed from payroll.`);
+  return redirectWithMessage(res, `${removedEmployee.name} was removed from payroll.`, req.query);
 });
 
 if (require.main === module) {

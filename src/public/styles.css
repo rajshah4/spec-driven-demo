@@ -321,6 +321,84 @@ select:focus {
   padding: 0 24px 24px;
 }
 
+.filter-panel {
+  position: relative;
+}
+
+.filter-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.filter-input {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  padding: 12px 14px;
+  min-height: 46px;
+}
+
+.filter-input:focus {
+  outline: 2px solid rgba(51, 65, 85, 0.18);
+  border-color: var(--accent);
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-strong);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 60px;
+}
+
+.filter-count {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.clear-filters-btn {
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.clear-filters-btn:hover {
+  background: var(--panel-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+}
+
+.empty-state p:first-child {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.empty-state a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
 @media (max-width: 1120px) {
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -348,11 +426,17 @@ select:focus {
   }
 
   .stats-grid,
-  .form-grid {
+  .form-grid,
+  .filter-grid {
     grid-template-columns: 1fr;
   }
 
   .employee-card-meta {
+    align-items: flex-start;
+  }
+
+  .filter-status {
+    flex-direction: column;
     align-items: flex-start;
   }
 }
