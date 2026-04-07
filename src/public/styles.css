@@ -165,6 +165,22 @@ small,
   top: 24px;
 }
 
+.search-container {
+  margin-bottom: 20px;
+}
+
+#employee-search {
+  width: 100%;
+  max-width: 400px;
+}
+
+.no-results {
+  padding: 32px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
