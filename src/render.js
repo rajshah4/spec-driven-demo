@@ -34,7 +34,7 @@ function renderEmployeeRows(employees) {
   return employees
     .map(
       (employee) => `
-        <tr>
+        <tr data-name="${escapeHtml(employee.name)}" data-title="${escapeHtml(employee.title)}">
           <td>
             <div class="employee-primary">
               <strong>${escapeHtml(employee.name)}</strong>
@@ -203,8 +203,16 @@ function renderDashboard({ employees, summary, message }) {
                   <h2>Employee directory</h2>
                 </div>
               </div>
+              <div class="search-container">
+                <input 
+                  type="search" 
+                  id="employee-search" 
+                  placeholder="Search by name or title..."
+                  aria-label="Search employees"
+                />
+              </div>
               <div class="table-wrap">
-                <table>
+                <table id="employee-table">
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -218,6 +226,9 @@ function renderDashboard({ employees, summary, message }) {
                     ${renderEmployeeRows(employees)}
                   </tbody>
                 </table>
+                <div id="no-results" class="no-results" style="display: none;">
+                  No employees match your search.
+                </div>
               </div>
             </section>
 
@@ -236,6 +247,41 @@ function renderDashboard({ employees, summary, message }) {
           </main>
         </div>
       </div>
+      <script>
+        (function() {
+          const searchInput = document.getElementById('employee-search');
+          const tableBody = document.querySelector('#employee-table tbody');
+          const noResultsMessage = document.getElementById('no-results');
+          
+          if (searchInput && tableBody) {
+            searchInput.addEventListener('input', function(e) {
+              const query = e.target.value.trim();
+              const rows = tableBody.querySelectorAll('tr');
+              let visibleCount = 0;
+              
+              rows.forEach(function(row) {
+                const name = row.getAttribute('data-name') || '';
+                const title = row.getAttribute('data-title') || '';
+                
+                // Case-sensitive matching
+                const matches = name.includes(query) || title.includes(query);
+                
+                if (matches) {
+                  row.style.display = '';
+                  visibleCount++;
+                } else {
+                  row.style.display = 'none';
+                }
+              });
+              
+              // Show/hide no results message
+              if (noResultsMessage) {
+                noResultsMessage.style.display = visibleCount === 0 && query !== '' ? 'block' : 'none';
+              }
+            });
+          }
+        })();
+      </script>
     </body>
   </html>`;
 }
