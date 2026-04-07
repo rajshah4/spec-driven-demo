@@ -46,7 +46,16 @@ ROUTING_RULES = [
     
     # Step 5: PR review -> respond to feedback
     ("pull_request_review", "submitted", None, "pr-responder"),
+    
+    # Revision command: /revise spec|plan|tasks: <feedback>
+    # Handled specially in determine_skill() - checks comment body
+    ("issue_comment", "created", None, "revise"),
 ]
+
+# Comment prefixes that trigger specific skills
+COMMENT_TRIGGERS = {
+    "/revise": "revise",
+}
 
 
 # ============================================================================
@@ -206,10 +215,24 @@ def get_feature_branch(issue_number: int, issue_title: str) -> str:
 # EVENT ROUTING
 # ============================================================================
 
-def determine_skill(event_name: str, action: str, event_label: str | None, labels: list[str]) -> str | None:
+def determine_skill(event_name: str, action: str, event_label: str | None, labels: list[str], comment_body: str | None = None) -> str | None:
     """Determine which skill to run based on the event."""
+    
+    # Special handling for issue comments - check for command triggers
+    if event_name == "issue_comment" and action == "created" and comment_body:
+        comment_lower = comment_body.strip().lower()
+        for trigger, skill in COMMENT_TRIGGERS.items():
+            if comment_lower.startswith(trigger):
+                return skill
+        # No matching trigger found for this comment
+        return None
+    
     for rule_event, rule_action, rule_label, skill in ROUTING_RULES:
         if event_name != rule_event or action != rule_action:
+            continue
+        
+        # Skip issue_comment rules here (handled above)
+        if rule_event == "issue_comment":
             continue
         
         # For labeled events, check if the newly added label matches
@@ -311,6 +334,7 @@ STEP_DISPLAY_NAMES = {
     "plan": "plan",
     "tasks": "task",
     "implement": "implement",
+    "revise": "revision",
 }
 
 
@@ -358,8 +382,11 @@ def main():
     context = build_context(event_payload, event_name)
     labels = context.get("labels", [])
     
-    # Determine skill based on event and label
-    skill_name = determine_skill(event_name, event_action, event_label or None, labels)
+    # Get comment body if this is a comment event
+    comment_body = context.get("comment", {}).get("body") if context.get("comment") else None
+    
+    # Determine skill based on event, label, and comment content
+    skill_name = determine_skill(event_name, event_action, event_label or None, labels, comment_body)
     if not skill_name:
         print("No matching skill for this event. Skipping.")
         sys.exit(0)
@@ -381,10 +408,11 @@ def main():
     else:
         branch = "main"
     
-    # Check if this needs a step-started comment (new issue or label-triggered)
+    # Check if this needs a step-started comment (new issue, label-triggered, or /revise command)
     is_new_issue = event_name == "issues" and event_action == "opened"
     is_label_triggered = event_action == "labeled" and event_label
-    needs_step_comment = is_new_issue or is_label_triggered
+    is_command_triggered = event_name == "issue_comment" and skill_name in COMMENT_TRIGGERS.values()
+    needs_step_comment = is_new_issue or is_label_triggered or is_command_triggered
     
     issue_number = context.get("number")
     repo = context.get("repository", "")

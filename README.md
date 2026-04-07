@@ -110,6 +110,22 @@ When the spec is ready, add the `spec-approved` label to trigger planning.
 | Add `plan-approved` | → Breaks down into tasks |
 | Add `ready-to-implement` | → Implements & opens PR |
 
+### 💡 Need to Make Changes?
+
+Use the `/revise` command to modify any artifact without skipping ahead:
+
+```
+/revise plan: use case-sensitive search instead of case-insensitive
+```
+
+| Command | What it updates |
+|---------|-----------------|
+| `/revise spec: ...` | The specification (spec.json) |
+| `/revise plan: ...` | The implementation plan (plan.md) |
+| `/revise tasks: ...` | The task breakdown (tasks.md) |
+
+The agent updates the artifact and posts a confirmation—you stay in control of when to proceed.
+
 ---
 
 ## 📁 Project Structure
@@ -176,6 +192,8 @@ When the spec is ready, add the `spec-approved` label to trigger planning.
                      └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
+
+> 💡 **Tip**: Use `/revise spec|plan|tasks: <feedback>` at any point to update artifacts without advancing the workflow.
 ---
 
 ## 📚 Learn More
