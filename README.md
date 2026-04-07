@@ -1,172 +1,191 @@
-# OpenSpec Development with OpenHands
+# Spec-Driven Development Demo
 
-A GitHub-native workflow for automating the journey from issue to draft PR using OpenHands Cloud agents and structured OpenSpec artifacts.
+> **From idea to pull request—automated.**  
+> Watch OpenHands turn a GitHub issue into a fully implemented feature through a structured spec-driven workflow.
 
-## Quick Start
+[![OpenHands Workflow](https://img.shields.io/badge/OpenHands-Enabled-blue)](https://app.all-hands.dev)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+## 🎯 What This Demo Shows
+
+This repository demonstrates **spec-driven development with AI agents**. When you create a GitHub issue describing a feature, OpenHands automatically:
+
+1. **📋 Writes a specification** — Structured requirements, user stories, acceptance criteria
+2. **🏗️ Creates an implementation plan** — Architecture decisions, file changes, dependencies
+3. **✅ Breaks down tasks** — Ordered, actionable implementation steps
+4. **💻 Implements the code** — Opens a draft PR with working code
+
+**You stay in control** — review and approve each step before the agent proceeds.
+
+---
+
+## 🖥️ The Demo App: Payroll Dashboard
+
+A simple employee payroll management system built with **Express.js** and **SQLite**.
+
+### Features
+- 👥 View all employees with salary and manager info
+- ➕ Add new employees to payroll
+- ✏️ Edit employee details (name, title, salary, address, manager)
+- 🗑️ Remove employees from the system
+- 📊 Dashboard with headcount, total payroll, and average salary
+
+### Screenshot
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  🏢 Payroll Dashboard                                       │
+├─────────────────────────────────────────────────────────────┤
+│  Headcount: 6    Total Payroll: $889,000    Avg: $148,167   │
+├─────────────────────────────────────────────────────────────┤
+│  Name              │ Title                  │ Salary        │
+│  ─────────────────────────────────────────────────────────  │
+│  Sophia Carter     │ CEO                    │ $245,000      │
+│  Marcus Chen       │ Director of Finance    │ $182,000      │
+│  Elena Rodriguez   │ People Ops Manager     │ $154,000      │
+│  Priya Patel       │ Senior Accountant      │ $118,000      │
+│  Daniel Kim        │ Payroll Specialist     │ $98,000       │
+│  Nina Brooks       │ HR Generalist          │ $92,000       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Run Locally
+
+```bash
+# Install dependencies
+npm install
+
+# Start the app (uses port 3000 by default)
+npm start
+
+# Or specify a custom port
+PORT=8080 npm start
+```
+
+Then open http://localhost:3000 in your browser.
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Dashboard UI |
+| `GET` | `/health` | Health check |
+| `GET` | `/api/employees` | List all employees (JSON) |
+| `POST` | `/employees` | Add new employee |
+| `POST` | `/employees/:id/update` | Update employee |
+| `POST` | `/employees/:id/delete` | Delete employee |
+
+---
+
+## 🚀 Try the Workflow
+
+### Step 1: Create an Issue
+
+Go to [Issues → New Issue](../../issues/new) and describe a feature:
+
+```markdown
+## Add Employee Search
+
+Add a search box to filter employees by name or title.
+Real-time filtering as the user types.
+```
+
+### Step 2: Watch the Agent Work
+
+The agent automatically:
+- Creates a feature branch
+- Writes `spec.json` with requirements
+- Posts a comment with a link to track progress
+
+### Step 3: Review and Approve
+
+When the spec is ready, add the `spec-approved` label to trigger planning.
+
+### Step 4: Continue Through the Workflow
+
+| Your Action | Agent Response |
+|-------------|----------------|
+| Create issue | → Writes specification |
+| Add `spec-approved` | → Creates implementation plan |
+| Add `plan-approved` | → Breaks down into tasks |
+| Add `ready-to-implement` | → Implements & opens PR |
+
+---
+
+## 📁 Project Structure
+
+```
+├── src/
+│   ├── server.js      # Express app & routes
+│   ├── db.js          # SQLite database & queries
+│   └── render.js      # HTML template rendering
+│
+├── .agents/skills/    # OpenHands skill definitions
+│   ├── specify/       # Specification writing
+│   ├── plan/          # Implementation planning
+│   ├── tasks/         # Task breakdown
+│   └── implement/     # Code implementation
+│
+├── .specify/          # Specification artifacts
+│   ├── schema/        # OpenSpec JSON schema
+│   └── specs/         # Generated specs per issue
+│
+└── .github/
+    ├── openhands/     # Event router (runner.py)
+    └── workflows/     # GitHub Actions
+```
+
+---
+
+## ⚙️ Setup Your Own
 
 ### Prerequisites
+- [OpenHands Cloud](https://app.all-hands.dev) account
+- GitHub repository with Actions enabled
 
-1. An OpenHands Cloud account and API key
-2. A GitHub repository with Actions enabled
-3. Repository secrets configured
+### Configuration
 
-### Setup
+1. **Add repository secret**
+   ```
+   Settings → Secrets → Actions → New secret
+   Name: OPENHANDS_API_KEY
+   Value: <your API key from app.all-hands.dev/settings/api-keys>
+   ```
 
-1. **Add required repository secret**
-   - Go to **Settings -> Secrets and variables -> Actions**
-   - Add `OPENHANDS_API_KEY` with your OpenHands Cloud API key
+2. **Labels are pre-configured** — The workflow labels (`spec-approved`, `plan-approved`, `ready-to-implement`) are already set up.
 
-2. **Create required labels**
+3. **Create an issue** — The workflow triggers automatically!
 
-   | Label | Color | Description |
-   |-------|-------|-------------|
-   | `spec-approved` | `#0E8A16` | Spec is approved, ready for planning |
-   | `plan-approved` | `#0E8A16` | Plan is approved, ready for task breakdown |
-   | `ready-to-implement` | `#0E8A16` | Tasks approved, ready for implementation |
-   | `needs-clarification` | `#FBCA04` | Needs more information |
-   | `spec-ready` | `#1D76DB` | Spec draft is ready for review |
-   | `plan-ready` | `#1D76DB` | Plan draft is ready for review |
-   | `tasks-ready` | `#1D76DB` | Tasks draft is ready for review |
+---
 
-3. **Enable workflows**
-   - `.github/workflows/openhands-agent.yml` routes issue/label/review events to skills
-   - `.github/workflows/validate-openspec.yml` validates `spec.json` artifacts
+## 🔄 Workflow Diagram
 
-4. **Use the workflow**
-   - Create an issue with your feature idea
-   - Agent creates `spec.json` -> adds `spec-ready`
-   - Review and add `spec-approved`
-   - Agent creates `plan.md` -> adds `plan-ready`
-   - Review and add `plan-approved`
-   - Agent creates `tasks.md` -> adds `tasks-ready`
-   - Review and add `ready-to-implement`
-   - Agent implements and opens a draft PR
-
-## Local Demo (Live Run)
-
-Use these commands to demo the app and OpenSpec validation locally.
-
-### 1) Install dependencies
-
-```bash
-npm install
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│    Issue     │────▶│     Spec     │────▶│     Plan     │────▶│    Tasks     │
+│   Created    │     │   Created    │     │   Created    │     │   Created    │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                            │                    │                    │
+                            ▼                    ▼                    ▼
+                     spec-approved        plan-approved       ready-to-implement
+                            │                    │                    │
+                            ▼                    ▼                    ▼
+                     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+                     │    Plan      │     │    Tasks     │     │   Draft PR   │
+                     │   Skill      │     │    Skill     │     │   Created    │
+                     └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
-### 2) Validate OpenSpec artifacts
+---
 
-```bash
-npm run validate:openspec
-```
+## 📚 Learn More
 
-Expected output includes:
+- [OpenHands Documentation](https://docs.openhands.dev)
+- [OpenHands Skills](https://docs.openhands.dev/overview/skills)
+- [OpenHands Cloud](https://app.all-hands.dev)
 
-```text
-Validated 1 OpenSpec file(s) successfully.
-```
+---
 
-### 3) Start the payroll dashboard
+## 📄 License
 
-```bash
-PORT=13001 npm start
-```
-
-### 4) Verify health endpoint
-
-```bash
-curl http://127.0.0.1:13001/health
-```
-
-Expected response on fresh data:
-
-```json
-{"status":"ok","employeeCount":6}
-```
-
-### 5) Verify employee API
-
-```bash
-curl http://127.0.0.1:13001/api/employees
-```
-
-Expected response: JSON with `employees` and `summary` keys.
-
-### 6) Open UI
-
-Visit `http://127.0.0.1:13001/` in your browser.
-
-## Features
-
-### Feature Branch Workflow
-
-All work for an issue happens on a dedicated feature branch (never directly on `main`):
-
-1. New issue creates a branch: `feature/{issue_number}-{slug}`
-2. Spec, plan, task artifacts, and implementation commits go to that branch
-3. Implementation opens a draft PR into `main`
-4. Main remains protected by review
-
-### Step Comments
-
-When a new issue is opened or a label triggers a workflow step, the agent posts an acknowledgement comment:
-
-> OK, working on `spec`. [Track my progress here](conversation link).
-
-After each step completes (`spec`, `plan`, `task`, `implement`), the agent posts a new issue comment with step details and next steps.
-
-## Project Structure
-
-```text
-.agents/
-└── skills/
-    ├── specify/SKILL.md
-    ├── plan/SKILL.md
-    ├── tasks/SKILL.md
-    ├── implement/SKILL.md
-    └── pr-responder/SKILL.md
-
-.github/
-├── workflows/
-│   ├── openhands-agent.yml
-│   └── validate-openspec.yml
-└── openhands/
-    └── runner.py
-
-.specify/
-├── memory/
-│   └── constitution.md
-├── schema/
-│   └── spec.schema.json
-└── specs/
-    └── <issue-number>-<feature>/
-        ├── spec.json
-        ├── plan.md
-        └── tasks.md
-
-scripts/
-└── validate-openspec.js
-```
-
-## Workflow Steps
-
-| Step | Trigger | Skill | Output |
-|------|---------|-------|--------|
-| 1. Specify | Issue opened | `specify` | `.specify/specs/<id>/spec.json` |
-| 2. Plan | `spec-approved` label | `plan` | `.specify/specs/<id>/plan.md` |
-| 3. Tasks | `plan-approved` label | `tasks` | `.specify/specs/<id>/tasks.md` |
-| 4. Implement | `ready-to-implement` label | `implement` | Draft PR |
-| 5. Refine | PR review submitted | `pr-responder` | Updated PR |
-
-## Customization
-
-### Skills
-
-Skills are stored in `.agents/skills/` using the [OpenHands Skills format](https://docs.openhands.dev/overview/skills).
-
-### Constitution
-
-The constitution in `.specify/memory/constitution.md` defines non-negotiable engineering and process rules.
-
-## Learn More
-
-- OpenHands Skills: https://docs.openhands.dev/overview/skills
-- Spec Kit / OpenSpec methodology: https://github.com/github/spec-kit
+MIT
