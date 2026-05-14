@@ -1,0 +1,77 @@
+{
+  "version": "1.0",
+  "feature": "Add a new employee feature",
+  "issue": {
+    "number": 5,
+    "title": "Add a new employee feature",
+    "url": "https://github.com/rajshah4/spec-driven-demo/issues/5"
+  },
+  "problem_statement": "The employee directory table on the payroll dashboard currently displays all employees with no way to narrow the list. As the number of employees grows, managers and HR administrators need a quick way to locate specific people by name or job title without scrolling through the entire roster. A real-time search box will allow users to filter employees instantly as they type, improving usability without requiring a page reload.",
+  "user_stories": [
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to type in a search box and see the employee table filter instantly",
+      "so_that": "I can find a specific employee quickly without scrolling through the full roster"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to search by partial name or partial title",
+      "so_that": "I don't need to remember the exact spelling to locate a record"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to clear the search and return to the full employee list",
+      "so_that": "I can easily reset my view after finding what I need"
+    },
+    {
+      "as_a": "manager or HR administrator",
+      "i_want": "to see a clear indication when no employees match my search",
+      "so_that": "I know the directory was searched and no results were found rather than assuming the page failed to load"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "A search input field displayed above the employee directory table on the main dashboard",
+      "Real-time filtering of the employee table rows as the user types (client-side, no page reload required)",
+      "Filtering applies to both the employee name and job title columns simultaneously",
+      "Search is case-insensitive so that 'CEO' and 'ceo' both match 'Chief Executive Officer'",
+      "An empty-state message is shown in the table body when no rows match the current search term",
+      "Clearing the search input restores all employee rows"
+    ],
+    "should_have": [
+      "A visible label or placeholder text on the search input that communicates both name and title are searchable (e.g., 'Search by name or title…')",
+      "The search input is accessible with a proper <label> element associated via for/id attributes",
+      "The employee count or a result count is updated to reflect how many employees match the current filter",
+      "Search state is not persisted across page reloads (stateless client-side only)"
+    ],
+    "nice_to_have": [
+      "A clear/reset button (×) inside the search input to dismiss the filter in one click",
+      "Debounced input handling to avoid excessive DOM manipulation on rapid keystrokes",
+      "Matching text within the name or title cell is visually highlighted"
+    ]
+  },
+  "acceptance_criteria": [
+    "Verify a search input element is present above the employee directory table on the dashboard (GET /)",
+    "Verify typing a partial employee name into the search box hides rows that do not match and keeps rows that do match, without a page reload",
+    "Verify typing a partial job title into the search box hides rows that do not match and keeps rows that do match, without a page reload",
+    "Verify the search is case-insensitive (e.g., typing 'ceo' matches an employee with title 'Chief Executive Officer')",
+    "Verify that when the search term matches no employees, a message such as 'No employees match your search' appears in the table",
+    "Verify clearing the search input (emptying the text field) restores all employee rows",
+    "Verify the search input has an accessible label (either a visible <label> or aria-label attribute)",
+    "Verify the feature does not break existing CRUD operations (add, edit, delete employee) present on the dashboard"
+  ],
+  "out_of_scope": [
+    "Server-side search or filtering via query parameters",
+    "Filtering by columns other than name and title (e.g., salary, manager, home address)",
+    "Persisting the search term across page loads or in browser history",
+    "A dedicated search results page or route",
+    "Full-text search across all employee data fields",
+    "Adding new filterable columns or sorting capabilities",
+    "Authentication or permission checks for accessing the search feature"
+  ],
+  "open_questions": [
+    "Should the search box filter both the summary table (Employee directory) AND the expandable edit cards below it, or only the summary table?",
+    "Should the result count display (e.g., 'Showing 3 of 6 employees') be added to the panel heading, or is simply hiding rows sufficient?",
+    "Should the empty-state message replace all table rows, or should the table header remain visible with only an empty body?"
+  ]
+}
