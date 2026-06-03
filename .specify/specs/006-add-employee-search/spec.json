@@ -1,0 +1,79 @@
+{
+  "version": "1.0",
+  "feature": "Add Employee Search",
+  "issue": {
+    "number": 6,
+    "title": "Add Employee Search",
+    "url": "https://github.com/rajshah4/spec-driven-demo/issues/6"
+  },
+  "problem_statement": "The payroll dashboard currently has no way to filter or locate employees quickly. As the employee list grows, scrolling through all records becomes cumbersome. Users need a search box on the main dashboard that filters the employee table in real time as they type, matching against both employee name and job title so HR and managers can find the right person instantly.",
+  "user_stories": [
+    {
+      "as_a": "HR administrator or manager",
+      "i_want": "a search box on the payroll dashboard",
+      "so_that": "I can quickly locate employees without scrolling through the entire list"
+    },
+    {
+      "as_a": "HR administrator or manager",
+      "i_want": "the employee list to filter in real time as I type",
+      "so_that": "I get immediate visual feedback and can refine my query interactively"
+    },
+    {
+      "as_a": "HR administrator or manager",
+      "i_want": "the search to match against both name and job title",
+      "so_that": "I can find employees by either their identity or their role"
+    },
+    {
+      "as_a": "HR administrator or manager",
+      "i_want": "to see a clear message when no employees match my search",
+      "so_that": "I know the filter is working and my query returned no results"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "A text input search box is visible on the main payroll dashboard (the / route)",
+      "Typing in the search box filters the visible employee records in real time without a page reload",
+      "Filtering matches against employee name (case-insensitive, partial match)",
+      "Filtering matches against employee job title (case-insensitive, partial match)",
+      "Employees that do not match the current search query are hidden from view",
+      "An empty search query shows all employees (restores the full list)",
+      "When no employees match the search query, a visible empty-state message is displayed"
+    ],
+    "should_have": [
+      "The search input is clearly labeled or has a descriptive placeholder (e.g., 'Search by name or title…')",
+      "Filtering is performed client-side via JavaScript to avoid full page reloads",
+      "The search box is visually consistent with the existing dashboard styling in src/public/styles.css",
+      "The search state is not persisted across page reloads (ephemeral filter)"
+    ],
+    "nice_to_have": [
+      "A clear/reset button or × icon inside the search box to quickly clear the query",
+      "Highlighting of matching text within the filtered results",
+      "Debouncing of the input event to avoid excessive DOM operations on fast typing"
+    ]
+  },
+  "acceptance_criteria": [
+    "Verify a search input element is rendered on the main dashboard page (GET /)",
+    "Verify that typing a string matching an employee's name shows only that employee's card/row",
+    "Verify that typing a string matching a job title shows only employees with that title",
+    "Verify that the search is case-insensitive (e.g., 'CEO' matches 'Chief Executive Officer' via partial match)",
+    "Verify that clearing the search input restores the full employee list",
+    "Verify that typing a query with no matches hides all employee records and shows an empty-state message",
+    "Verify that no page reload or server round-trip occurs when the user types in the search box",
+    "Verify that the search box has a descriptive placeholder or label"
+  ],
+  "out_of_scope": [
+    "Server-side search via query parameters or a new API endpoint",
+    "Persisting the search query in the URL or localStorage across sessions",
+    "Filtering by fields other than name and title (e.g., salary range, manager, address)",
+    "Sorting or ordering the filtered results",
+    "Advanced search syntax such as boolean operators or quoted phrases",
+    "Authentication or authorization gating for the search feature",
+    "Search across pages other than the main payroll dashboard"
+  ],
+  "open_questions": [
+    "Should the search filter apply to both the employee table view and the expandable employee cards, or only one of them? The dashboard currently renders employees in both a summary table and detail cards.",
+    "Should the empty-state message replace the table/card area entirely, or appear inline below the search box?",
+    "Is there a preferred placement for the search box on the page (e.g., above the employee table, inside the header, or in a dedicated toolbar section)?",
+    "Should the search box be autofocused when the page loads, or only focused on explicit user click/tab?"
+  ]
+}
